@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta charset="utf-8">
+    <title>2021年全球电力净发电量 Top 10</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body style="height: 100%; margin: 0">
+<div id="container" style="height: 100%"></div>
+
+<script type="text/javascript">
+    var dom = document.getElementById("container");
+    var myChart = echarts.init(dom);
+
+    // 数据源 (这里我保留了您图中的数据格式，并做了保留2位小数的处理)
+    var sparkOutput =[
+        {"Country":"China","2021":8151.518231},
+        {"Country":"United States","2021":4164.564719},
+        {"Country":"India","2021":1702.094},
+        {"Country":"Russia","2021":1109.689916},
+        {"Country":"Japan","2021":954.8569816},
+        {"Country":"Brazil","2021":662.5953567},
+        {"Country":"Canada","2021":625.8546594},
+        {"Country":"South Korea","2021":587.3062261},
+        {"Country":"Germany","2021":557.1440648},
+        {"Country":"France","2021":530.4178475}
+    ];
+
+    var pieData = sparkOutput.map(function(item) {
+        return {
+            value: item["2021"],
+            name: item["Country"]
+        };
+    });
+
+    var option = {
+        // [关键修改 1] 标题配置：强制居中
+        title: {
+            text: '2021全球净发电量\nTop 10',
+            subtext: '来源: Spark Analysis Task 2',
+            // 使用百分比定位到绝对中心
+            left: '50%',
+            top: '50%',
+            // 修正对齐方式，确保文字中心点与坐标重合
+            textAlign: 'center',
+            textVerticalAlign: 'middle',
+            textStyle: {
+                fontSize: 22, // 稍微加大字体
+                fontWeight: 'bold',
+                color: '#333',
+                lineHeight: 30 // 调整行高防止拥挤
+            },
+            subtextStyle: {
+                fontSize: 12,
+                padding: [5, 0, 0, 0] // 副标题稍微下移一点
+            }
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: function(params) {
+                // 添加 .toFixed(2) 解决小数位过长问题
+                return params.seriesName + '<br/>' +
+                    params.marker + params.name + ': ' +
+                    '<b>' + params.value.toFixed(2) + '</b> 十亿千瓦时 (' +
+                    params.percent + '%)';
+            }
+        },
+        // 图例配置：为了美观，这里可以选择关闭，或者放在底部，以免挤压中间空间
+        legend: {
+            show: false // 因为饼图周围已经有标签了，隐藏图例会让画面更干净
+        },
+        series: [
+            {
+                name: 'Net Generation',
+                type: 'pie',
+                radius: ['45%', '75%'], // 调整内径，给中间文字留更多空间
+
+                // [关键修改 2] 饼图中心：必须与 title 的 left/top 保持一致
+                center: ['50%', '50%'],
+
+                itemStyle: {
+                    borderRadius: 8,
+                    borderColor: '#fff',
+                    borderWidth: 2
+                },
+                data: pieData,
+                label: {
+                    show: true,
+                    formatter: '{b}: {d}%',
+                    fontSize: 13,
+                    color: '#555'
+                },
+                labelLine: {
+                    length: 20,
+                    length2: 30,
+                    smooth: true
+                }
+            }
+        ]
+    };
+
+    if (option && typeof option === 'object') {
+        myChart.setOption(option);
+    }
+
+    window.addEventListener('resize', myChart.resize);
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta charset="utf-8">
+    <title>2021年各区域输配电损耗总量对比</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body style="height: 100%; margin: 0">
+<div id="container" style="height: 100%"></div>
+
+<script type="text/javascript">
+    var dom = document.getElementById("container");
+    var myChart = echarts.init(dom);
+
+    // 1. 模拟 Spark 任务输出的 JSON 数据
+    var rawData = [
+            {"Region":"Asia & Oceania","Total_Losses_2021":792.50014888},
+            {"Region":"North America","Total_Losses_2021":296.12705055099997},
+            {"Region":"Europe","Total_Losses_2021":255.209830378},
+            {"Region":"Central & South America","Total_Losses_2021":199.510110892},
+            {"Region":"Middle East","Total_Losses_2021":169.089624846},
+            {"Region":"Eurasia","Total_Losses_2021":134.42954090700002},
+            {"Region":"Africa","Total_Losses_2021":124.88603938300001}
+        ]
+    ;
+
+    // 2. 数据映射
+    var regions = rawData.map(item => item.Region);
+    var losses = rawData.map(item => item.Total_Losses_2021);
+
+    var option = {
+        // 标题
+        title: {
+            text: '2021年各区域输配电损耗总量对比',
+            subtext: 'Distribution Losses (单位: 十亿千瓦时 / TWh)',
+            left: 'center',
+            textStyle: {
+                fontSize: 22,
+                color: '#333'
+            }
+        },
+
+        // 提示框
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' },
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            formatter: function(params) {
+                var tar = params[0];
+                return `<div style="border-bottom: 1px solid #ccc; margin-bottom: 3px; padding-bottom: 3px; font-weight: bold;">${tar.name}</div>` +
+                    `<span style="display:inline-block;width:10px;height:10px;background:${tar.color.colorStops[0].color};border-radius:50%;margin-right:5px;"></span>` +
+                    `输配电损耗: <b>${tar.value}</b> TWh`;
+            }
+        },
+
+        // 绘图区域
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true // 防止长标签被裁剪
+        },
+
+        // X轴：数值
+        xAxis: {
+            type: 'value',
+            name: '损耗量 (TWh)',
+            nameLocation: 'middle',
+            nameGap: 30, // 调整轴名称位置
+            boundaryGap: [0, 0.01],
+            splitLine: {
+                lineStyle: { type: 'dashed' } // 网格线设为虚线
+            }
+        },
+
+        // Y轴：区域
+        yAxis: {
+            type: 'category',
+            data: regions,
+            inverse: true, // 关键：开启反向，使 Top 1 显示在最上方
+            axisLabel: {
+                fontWeight: 'bold',
+                fontSize: 13,
+                color: '#555'
+            },
+            axisTick: { show: false }, // 隐藏刻度线
+            axisLine: { lineStyle: { color: '#ccc' } }
+        },
+
+        // 数据系列
+        series: [
+            {
+                name: 'Distribution Losses',
+                type: 'bar',
+                data: losses,
+                barWidth: '55%',
+                itemStyle: {
+                    // 颜色设计：使用橙色到红色的渐变，寓意“发热”、“损耗”、“警示”
+                    color: new echarts.graphic.LinearGradient(1, 0, 0, 0, [
+                        { offset: 0, color: '#ff4d4d' },  // 右侧（高值端）深红
+                        { offset: 1, color: '#ffbf00' }   // 左侧（低值端）橙黄
+                    ]),
+                    borderRadius: [0, 4, 4, 0] // 柱子末端圆角
+                },
+                // 标签：直接显示数值
+                label: {
+                    show: true,
+                    position: 'right',
+                    formatter: '{c}',
+                    color: '#d9363e',
+                    fontWeight: 'bold'
+                }
+            }
+        ]
+    };
+
+    if (option && typeof option === 'object') {
+        myChart.setOption(option);
+    }
+
+    window.addEventListener('resize', myChart.resize);
+</script>
+</body>
+</html>

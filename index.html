@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全球电力大数据分析可视化汇总 - 大作业</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header h1 { margin: 0; color: #333; }
+        .header p { color: #666; margin-top: 10px; }
+
+        /* 网格布局：两列排布 */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 两列 */
+            gap: 20px; /* 间距 */
+        }
+
+        /* 如果想让某些大图占满一行，可以单独设置 */
+        .chart-box {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            height: 600px; /* 每个图框的高度 */
+        }
+
+        .chart-title {
+            background: #fafafa;
+            padding: 10px 20px;
+            font-weight: bold;
+            border-bottom: 1px solid #eee;
+            color: #1890ff;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* 响应式：手机或小屏幕变单列 */
+        @media (max-width: 1000px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>全球电力统计大数据分析 - 可视化成果汇总</h1>
+    <p>基于 Spark 分析与 ECharts 展示 </p>
+</div>
+
+<div class="container">
+    <!-- 第1个图 -->
+    <div class="chart-box">
+        <div class="chart-title">Task 1: 2021年电力净消费量 Top 10 国家排名分析</div>
+        <!-- 注意：src这里要填你实际的文件名 -->
+        <iframe src="task1.html"></iframe>
+    </div>
+
+    <!-- 第2个图 -->
+    <div class="chart-box">
+        <div class="chart-title">Task 2: 2021年电力净发电量 Top 10 国家排名分析</div>
+        <iframe src="task2.html"></iframe>
+    </div>
+
+    <!-- 第3个图 -->
+    <div class="chart-box">
+        <div class="chart-title">Task 3: 全球电力装机容量 Top 10</div>
+        <iframe src="task3.html"></iframe>
+    </div>
+
+    <!-- 第4个图 -->
+    <div class="chart-box">
+        <div class="chart-title">Task 4: 中国电力工业 40 年发展历程趋势分析</div>
+        <iframe src="task4.html"></iframe>
+    </div>
+
+    <!-- 第5个图 -->
+    <div class="chart-box">
+        <div class="chart-title">Task 5: 中美发电量增长模式对比</div>
+        <iframe src="task5.html"></iframe>
+    </div>
+
+    <!-- 第6个图 -->
+    <div class="chart-box">
+        <div class="chart-title">Task 6: 电力重心转移趋势分析</div>
+        <iframe src="task6.html"></iframe>
+    </div>
+
+    <!-- 第7个图 -->
+    <div class="chart-box">
+        <div class="chart-title">Task 7: 各区域输配电损耗对比</div>
+        <iframe src="task7.html"></iframe>
+    </div>
+
+    <!-- 第8个图 -->
+    <div class="chart-box">
+        <div class="chart-title">Task 8: 国家电力自给率（净进口量）分析</div>
+        <iframe src="task8.html"></iframe>
+    </div>
+
+    <!-- 第9个图 -->
+    <div class="chart-box">
+        <div class="chart-title">Task 9: 2020年“新冠疫情”对全球电力消费的冲击分析</div>
+        <iframe src="task9.html"></iframe>
+    </div>
+
+    <!-- 第10个图 -->
+    <div class="chart-box">
+        <div class="chart-title">Task 10: 主要电力进口国与出口国识别</div>
+        <iframe src="task10.html"></iframe>
+    </div>
+</div>
+
+</body>
+</html>

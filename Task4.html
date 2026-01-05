@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta charset="utf-8">
+    <title>中国电力工业40年发展历程 (1980-2021)</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body style="height: 100%; margin: 0">
+<div id="container" style="height: 100%"></div>
+
+<script type="text/javascript">
+    var dom = document.getElementById("container");
+    var myChart = echarts.init(dom);
+
+    // 1. 模拟 Spark 任务生成的 JSON 数据
+    // 注意：这里为了演示方便只列出了部分关键年份，实际使用时应包含 1980-2021 完整数据
+    var data = {
+        "years": [1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021],
+        "generation": [285.474, 294.017, 311.758, 334.636, 358.72, 390.678, 427.349, 472.472, 517.849, 555.538, 590.346, 643.116, 716.04, 795.733, 880.411, 956.307, 1005.499, 1070.225, 1103.697, 1172.261, 1280.613, 1426.677, 1584.671, 1810.261, 2103.526, 2373.002, 2716.712, 3108.028, 3297.443, 3527.305, 3986.89162, 4465.47856, 4740.27258, 5171.54802, 5400.11356, 5584.765637, 5904.640151, 6389.805784, 6800.815757, 7152.505896, 7455.467185, 8151.518231],
+        "capacity": [65.871, 69.13, 72.36, 76.44, 80.117, 87.045, 93.82, 102.897, 115.497, 126.638, 137.891, 151.173, 166.532, 183.549, 201.1642, 218.7122, 238.118, 256.326, 279.656, 302.072, 325.526, 344.714, 364.05, 398.067, 449.0006, 518.5108, 626.5898, 718.5158, 794.202, 878.842, 970.896, 1067.207, 1154.973, 1267.177, 1379.678, 1518.608, 1660.129, 1790.794, 1911.98, 2023.578, 2224.791, 2355.55]
+    };
+
+    var option = {
+        // 标题
+        title: {
+            text: '中国电力工业 40 年发展历程趋势 (1980-2021)',
+            subtext: '左轴：发电量 | 右轴：装机容量 | 来源: AnalysisTask4',
+            left: 'center',
+            textStyle: {
+                fontSize: 24,
+                color: '#333'
+            }
+        },
+
+        // 提示框：同时显示两轴数据
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross',
+                label: { backgroundColor: '#6a7985' }
+            },
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            formatter: function (params) {
+                var year = params[0].name;
+                var gen = params[0];
+                var cap = params[1];
+                return `<strong>${year}年</strong><br/>` +
+                    `<span style="color:${gen.color}">●</span> ${gen.seriesName}: <b>${gen.value}</b> 十亿千瓦时<br/>` +
+                    `<span style="color:${cap.color}">●</span> ${cap.seriesName}: <b>${cap.value}</b> 百万千瓦`;
+            }
+        },
+
+        // 图例
+        legend: {
+            data: ['发电量 (Net Generation)', '装机容量 (Installed Capacity)'],
+            top: 'bottom' // 放在底部
+        },
+
+        // 绘图区域调整
+        grid: {
+            left: '3%',
+            right: '3%',
+            bottom: '10%', // 留出空间给 DataZoom 和 Legend
+            containLabel: true
+        },
+
+        // 工具栏
+        toolbox: {
+            feature: {
+                dataZoom: { yAxisIndex: 'none' },
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+
+        // 核心配置：数据区域缩放 (DataZoom)
+        // 因为有40多年的数据，拖动条非常重要
+        dataZoom: [
+            {
+                type: 'slider',
+                show: true,
+                xAxisIndex: [0],
+                start: 0,
+                end: 100,
+                bottom: 40
+            },
+            {
+                type: 'inside', // 支持鼠标滚轮缩放
+                xAxisIndex: [0],
+                start: 0,
+                end: 100
+            }
+        ],
+
+        // X 轴
+        xAxis: [
+            {
+                type: 'category',
+                boundaryGap: false, // 紧贴边缘，适合折线/面积图
+                data: data.years,
+                axisLabel: {
+                    interval: 'auto', // 自动隐藏过密的标签
+                    rotate: 0
+                }
+            }
+        ],
+
+        // Y 轴：配置双轴
+        yAxis: [
+            {
+                // 左轴：发电量
+                type: 'value',
+                name: '发电量\n(十亿千瓦时)',
+                position: 'left',
+                axisLine: { show: true, lineStyle: { color: '#5470C6' } },
+                axisLabel: { formatter: '{value}' },
+                splitLine: { show: true, lineStyle: { type: 'dashed' } }
+            },
+            {
+                // 右轴：装机容量
+                type: 'value',
+                name: '装机容量\n(百万千瓦)',
+                position: 'right',
+                axisLine: { show: true, lineStyle: { color: '#EE6666' } },
+                axisLabel: { formatter: '{value}' },
+                splitLine: { show: false } // 隐藏右侧网格线，防止杂乱
+            }
+        ],
+
+        // 数据系列
+        series: [
+            {
+                name: '发电量 (Net Generation)',
+                type: 'line',
+                smooth: true, // 平滑曲线
+                symbol: 'none', // 不显示小圆点，让线条更流畅
+                yAxisIndex: 0, // 对应左轴
+                // 面积填充样式，体现“总量”概念
+                areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: 'rgba(84, 112, 198, 0.5)' },
+                        { offset: 1, color: 'rgba(84, 112, 198, 0.05)' }
+                    ])
+                },
+                itemStyle: { color: '#5470C6' },
+                data: data.generation
+            },
+            {
+                name: '装机容量 (Installed Capacity)',
+                type: 'line', // 也可以用 bar，但双折线更适合看同步趋势
+                smooth: true,
+                yAxisIndex: 1, // 对应右轴
+                symbol: 'circle',
+                symbolSize: 6,
+                itemStyle: { color: '#EE6666' },
+                lineStyle: { width: 3 }, // 加粗线条
+                data: data.capacity
+            }
+        ]
+    };
+
+    if (option && typeof option === 'object') {
+        myChart.setOption(option);
+    }
+    window.addEventListener('resize', myChart.resize);
+</script>
+</body>
+</html>

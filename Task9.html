@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>新冠疫情电力冲击瀑布分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body { margin: 0; padding: 20px; background: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .title { text-align: center; margin-bottom: 30px; }
+        h1 { color: #60a5fa; margin-bottom: 10px; }
+        .subtitle { color: #94a3b8; }
+        .chart-wrapper { background: #1e293b; border-radius: 12px; padding: 25px; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .impact-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .impact-card { background: #334155; padding: 20px; border-radius: 10px; text-align: center; }
+        .impact-value { font-size: 28px; font-weight: bold; margin: 10px 0; }
+        .impact-label { color: #cbd5e1; font-size: 14px; }
+        .highlight { color: #f87171; }
+        .insight { background: rgba(96, 165, 250, 0.1); border-left: 4px solid #60a5fa; padding: 15px; margin-bottom: 20px; border-radius: 0 8px 8px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="title">
+        <h1>📉 新冠疫情对电力消费的累积冲击分析</h1>
+        <p class="subtitle">多米尼加共和国至尼日利亚：Top 10受影响国家的电力消费下降瀑布图</p>
+    </div>
+
+    <div class="insight">
+        <strong>💡 洞察发现：</strong> 多米尼加共和国旅游业完全停滞导致电力消费骤降13.7%，希腊、波斯尼亚等南欧国家同样受旅游限制重创，而伊拉克、沙特等产油国则因油价暴跌和减产协议遭受双重打击。
+    </div>
+
+    <div class="impact-summary">
+        <div class="impact-card">
+            <div class="impact-label">最大单国降幅</div>
+            <div class="impact-value highlight">-13.7%</div>
+            <div>多米尼加共和国</div>
+        </div>
+        <div class="impact-card">
+            <div class="impact-label">前10国平均降幅</div>
+            <div class="impact-value highlight">-9.0%</div>
+            <div>显著高于全球平均</div>
+        </div>
+        <div class="impact-card">
+            <div class="impact-label">经济类型分布</div>
+            <div class="impact-value">6/10</div>
+            <div>旅游或资源依赖型</div>
+        </div>
+    </div>
+
+    <div class="chart-wrapper">
+        <div id="waterfallChart" style="width: 100%; height: 500px;"></div>
+    </div>
+</div>
+
+<script>
+    const jsonData = [
+        {"Country":"Dominican Republic","GrowthRate":-0.1371821964741013},
+        {"Country":"Greece","GrowthRate":-0.10816126320870612},
+        {"Country":"Bosnia and Herzegovina","GrowthRate":-0.10687843396283074},
+        {"Country":"Iraq","GrowthRate":-0.10673585933605856},
+        {"Country":"Tunisia","GrowthRate":-0.08894893157618643},
+        {"Country":"Peru","GrowthRate":-0.0750694663727155},
+        {"Country":"Turkmenistan","GrowthRate":-0.0709284228083016},
+        {"Country":"South Africa","GrowthRate":-0.07077504905234759},
+        {"Country":"Saudi Arabia","GrowthRate":-0.07006322395292494},
+        {"Country":"Nigeria","GrowthRate":-0.06789141507224457}
+    ];
+
+    // 瀑布图数据准备
+    const countries = jsonData.map(item => item.Country);
+    const values = jsonData.map(item => item.GrowthRate * 100);
+
+    // 计算累积值用于瀑布图
+    const waterfallData = [];
+    let cumulative = 0;
+
+    // 起始点
+    waterfallData.push({
+        name: '起始',
+        value: 0,
+        itemStyle: { color: 'transparent' }
+    });
+
+    // 每个国家的下降值
+    values.forEach((value, index) => {
+        waterfallData.push({
+            name: countries[index],
+            value: value,
+            itemStyle: {
+                color: value < -10 ? '#ef4444' :
+                    value < -8 ? '#f97316' :
+                        value < -6 ? '#f59e0b' : '#eab308'
+            }
+        });
+        cumulative += value;
+    });
+
+    // 终点（总下降）
+    waterfallData.push({
+        name: '累计影响',
+        value: cumulative,
+        itemStyle: { color: '#dc2626' }
+    });
+
+    const chart = echarts.init(document.getElementById('waterfallChart'));
+    const option = {
+        title: {
+            text: '电力消费下降瀑布图',
+            subtext: '各国2020年电力消费同比下降百分比',
+            left: 'center',
+            textStyle: { color: '#e2e8f0' }
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' },
+            formatter: function(params) {
+                if (params[0].dataIndex === 0) {
+                    return '起始基准点 (0%)';
+                }
+                if (params[0].dataIndex === waterfallData.length - 1) {
+                    return `累计总下降: ${cumulative.toFixed(1)}%`;
+                }
+                const data = waterfallData[params[0].dataIndex];
+                return `${data.name}: ${data.value.toFixed(1)}%`;
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            data: waterfallData.map(item => item.name),
+            axisLabel: {
+                rotate: 45,
+                color: '#94a3b8'
+            }
+        },
+        yAxis: {
+            type: 'value',
+            name: '电力消费变化 (%)',
+            axisLabel: {
+                formatter: '{value}%',
+                color: '#94a3b8'
+            },
+            splitLine: {
+                lineStyle: {
+                    color: '#334155'
+                }
+            }
+        },
+        series: [
+            {
+                name: '下降幅度',
+                type: 'bar',
+                data: waterfallData,
+                label: {
+                    show: true,
+                    position: 'top',
+                    formatter: function(params) {
+                        if (params.dataIndex === 0) return '';
+                        if (params.dataIndex === waterfallData.length - 1) {
+                            return `总计: ${params.value.toFixed(1)}%`;
+                        }
+                        return params.value.toFixed(1) + '%';
+                    },
+                    color: '#e2e8f0'
+                },
+                itemStyle: {
+                    borderColor: '#1e293b',
+                    borderWidth: 1
+                },
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+
+    chart.setOption(option);
+
+    window.addEventListener('resize', function() {
+        chart.resize();
+    });
+</script>
+</body>
+</html>

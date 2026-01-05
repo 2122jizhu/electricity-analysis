@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta charset="utf-8">
+    <title>全球电力重心转移趋势分析 (1980 vs 2021)</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body style="height: 100%; margin: 0">
+<div id="container" style="height: 100%"></div>
+
+<script type="text/javascript">
+    var dom = document.getElementById("container");
+    var myChart = echarts.init(dom);
+
+    // 1. 模拟 Spark 任务生成的 JSON 数据
+    var rawData = [
+        {"Region":"Asia & Oceania","Total_1980":1265.5551027200001,"Total_2021":13447.337052316},
+        {"Region":"North America","Total_1980":2721.528364,"Total_2021":5128.612104732},
+        {"Region":"Europe","Total_1980":2147.843,"Total_2021":3671.960703536},
+        {"Region":"Eurasia","Total_1980":1294.003644,"Total_2021":1575.7920961000002},
+        {"Region":"Central & South America","Total_1980":308.43524,"Total_2021":1369.8530957900002},
+        {"Region":"Middle East","Total_1980":91.44000000000001,"Total_2021":1264.140644095},
+        {"Region":"Africa","Total_1980":188.785,"Total_2021":837.485348421}
+    ];
+
+    // 2. 数据分离
+    var regions = rawData.map(item => item.Region);
+    var data1980 = rawData.map(item => item.Total_1980);
+    var data2021 = rawData.map(item => item.Total_2021);
+
+    var option = {
+        // 标题
+        title: {
+            text: '全球电力重心转移趋势分析',
+            subtext: '对比 1980 年与 2021 年各区域发电量 (单位: 十亿千瓦时)',
+            left: 'center',
+            textStyle: {
+                fontSize: 24,
+                color: '#333'
+            }
+        },
+
+        // 提示框
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' }, // 鼠标悬停显示阴影指示器
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            formatter: function (params) {
+                var tar1980 = params[0];
+                var tar2021 = params[1];
+                // 计算增长倍数
+                var growth = ((tar2021.value - tar1980.value) / tar1980.value * 100).toFixed(0);
+
+                return `<div style="font-weight:bold; font-size:14px; margin-bottom:5px;">${tar1980.name}</div>` +
+                    `${tar1980.marker} 1980: <b>${tar1980.value}</b><br/>` +
+                    `${tar2021.marker} 2021: <b>${tar2021.value}</b><br/>` +
+                    `<span style="color: ${growth > 0 ? 'red' : 'green'}; font-size:12px; margin-left: 14px;">▲ 增长率: +${growth}%</span>`;
+            }
+        },
+
+        // 图例
+        legend: {
+            data: ['1980年', '2021年'],
+            top: 'bottom',
+            itemGap: 30,
+            textStyle: { fontSize: 14 }
+        },
+
+        // 网格区域
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '10%',
+            containLabel: true
+        },
+
+        // X轴：区域
+        xAxis: {
+            type: 'category',
+            data: regions,
+            axisLabel: {
+                interval: 0, // 强制显示所有标签
+                rotate: 15,  // 如果标签太长，稍微倾斜
+                fontSize: 12,
+                fontWeight: 'bold',
+                color: '#555'
+            },
+            axisTick: { alignWithLabel: true }
+        },
+
+        // Y轴：发电量
+        yAxis: {
+            type: 'value',
+            name: '发电量 (Total Net Generation)',
+            nameTextStyle: { align: 'right' },
+            splitLine: { show: true, lineStyle: { type: 'dashed' } }
+        },
+
+        // 数据系列
+        series: [
+            {
+                name: '1980年',
+                type: 'bar',
+                data: data1980,
+                barWidth: '25%', // 调整柱子宽度
+                itemStyle: {
+                    // 使用灰色调代表“过去”，形成视觉对比
+                    color: '#91cc75',
+                    opacity: 0.8,
+                    borderRadius: [5, 5, 0, 0] // 顶部圆角
+                }
+            },
+            {
+                name: '2021年',
+                type: 'bar',
+                data: data2021,
+                barWidth: '25%',
+                // 2021年的柱子向右偏移一点，如果需要重叠效果可以使用 barGap: '-100%'
+                // 这里默认并排
+                itemStyle: {
+                    // 使用鲜艳的蓝色/紫色代表“现代”
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: '#5470c6' },
+                        { offset: 1, color: '#3c52a0' }
+                    ]),
+                    borderRadius: [5, 5, 0, 0]
+                },
+                // 标签：只在2021年柱子上显示数值，避免杂乱
+                label: {
+                    show: true,
+                    position: 'top',
+                    formatter: '{c}',
+                    fontSize: 12,
+                    color: '#5470c6'
+                }
+            }
+        ]
+    };
+
+    if (option && typeof option === 'object') {
+        myChart.setOption(option);
+    }
+
+    window.addEventListener('resize', myChart.resize);
+</script>
+</body>
+</html>

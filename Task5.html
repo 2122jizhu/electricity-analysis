@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta charset="utf-8">
+    <title>中美电力发电量增长模式对比 (1980 - 2021)</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body style="height: 100%; margin: 0">
+<div id="container" style="height: 100%"></div>
+
+<script type="text/javascript">
+    var dom = document.getElementById("container");
+    var myChart = echarts.init(dom);
+
+    // 原始数据
+    var rawData = {
+        "years": [1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021],
+        "china": [285.474, 294.017, 311.758, 334.636, 358.72, 390.678, 427.349, 472.472, 517.849, 555.538, 590.346, 643.116, 716.04, 795.733, 880.411, 956.307, 1005.499, 1070.225, 1103.697, 1172.261, 1280.613, 1426.677, 1584.671, 1810.261, 2103.526, 2373.002, 2716.712, 3108.028, 3297.443, 3527.305, 3986.89162, 4465.47856, 4740.27258, 5171.54802, 5400.11356, 5584.765637, 5904.640151, 6389.805784, 6800.815757, 7152.505896, 7455.467185, 8151.518231],
+        "usa": [2289.600364, 2297.973338, 2244.372487, 2313.445686, 2419.465367, 2473.00212, 2490.470952, 2575.287667, 2707.411178, 2967.177014, 3037.862541, 3073.83819, 3083.925424, 3197.238487, 3247.575463, 3353.548041, 3444.257336, 3492.250345, 3620.383801, 3694.912538, 3802.221573, 3736.784538, 3858.619244, 3883.380201, 3970.796829, 4055.785197, 4065.230825, 4157.491035, 4120.587091, 3951.942958, 4127.598158, 4104.174499, 4054.26169, 4074.145289, 4104.796801, 4092.85304, 4096.386172, 4059.433178, 4210.526978, 4165.531327, 4051.289226, 4164.564719]
+    };
+
+    var option = {
+        title: {
+            text: '中美电力发电量增长模式对比 (1980 - 2021)',
+            subtext: '单位: 十亿千瓦时 (Billion kWh)',
+            left: 'center',
+            textStyle: { fontSize: 24, color: '#333' }
+        },
+        tooltip: {
+            trigger: 'axis',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            textStyle: { color: '#333' },
+            order: 'valueDesc', // 数值大的排上面
+            formatter: function (params) {
+                var result = '<strong>' + params[0].name + '年</strong><br/>';
+                params.forEach(function (item) {
+                    var val = parseFloat(item.value).toFixed(2);
+                    var dot = '<span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:' + item.color + '"></span>';
+                    result += dot + item.seriesName + ': <b>' + val + '</b><br/>';
+                });
+                return result;
+            }
+        },
+        legend: {
+            data: ['中国 (China)', '美国 (United States)'],
+            top: 'bottom',
+            icon: 'roundRect'
+        },
+        grid: {
+            left: '4%', right: '8%', bottom: '12%', top: '15%', // 增加 top 间距，防止标题和 MarkLine 打架
+            containLabel: true
+        },
+        toolbox: {
+            feature: { saveAsImage: {} }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: rawData.years
+        },
+        yAxis: {
+            type: 'value',
+            name: '发电量 (十亿千瓦时)',
+            splitLine: { show: true, lineStyle: { type: 'dashed' } }
+        },
+        dataZoom: [
+            { type: 'slider', show: true, start: 0, end: 100, bottom: 40 },
+            { type: 'inside' }
+        ],
+        series: [
+            {
+                name: '中国 (China)',
+                type: 'line',
+                data: rawData.china,
+                smooth: true,
+                symbol: 'none',
+                lineStyle: { width: 4, color: '#EE6666', shadowColor: 'rgba(238, 102, 102, 0.5)', shadowBlur: 10 },
+                itemStyle: { color: '#EE6666' },
+
+                // --- 修改点 1：优化 MarkLine ---
+                // ... inside series for China ...
+                markLine: {
+                    symbol: ['none', 'none'], // 去掉线两端的箭头，保持简洁
+                    label: {
+                        show: true,
+                        position: 'end', // 定位在线条的顶点（图表顶部）
+                        formatter: '2011年\n中国首次超越美国',
+
+                        // --- 核心修改：确保对齐 ---
+                        align: 'center',       // 水平居中：文字中心对准虚线
+                        verticalAlign: 'bottom', // 垂直对齐：文字位于定位点上方
+
+                        // 仅保留底部间距，去掉左右偏移，确保正中
+                        padding: [0, 0, 8, 0],
+
+                        lineHeight: 18,        // 行高优化
+                        fontSize: 12,
+                        fontWeight: 'bold',
+                        color: '#333',
+                        backgroundColor: 'rgba(255,255,255, 0.8)', // 半透明背景，防止文字压住网格线
+                        borderRadius: 4
+                    },
+                    lineStyle: {
+                        type: 'dashed',
+                        color: '#555',
+                        width: 1.5
+                    },
+                    // 确保线条贯穿 y 轴
+                    data: [
+                        { xAxis: '2011' }
+                    ]
+                },
+// ...
+
+                // --- 修改点 2：优化 MarkPoint ---
+                markPoint: {
+                    symbolSize: 50,
+                    label: {
+                        show: true,
+                        fontSize: 11,
+                        formatter: function(params) {
+                            // 取整，防止小数位过长
+                            return Math.round(params.value);
+                        }
+                    },
+                    data: [ { type: 'max', name: '2021峰值' } ]
+                }
+            },
+            {
+                name: '美国 (United States)',
+                type: 'line',
+                data: rawData.usa,
+                smooth: true,
+                symbol: 'none',
+                lineStyle: { width: 3, color: '#5470C6' },
+                itemStyle: { color: '#5470C6' },
+                markPoint: {
+                    symbolSize: 50,
+                    label: {
+                        show: true,
+                        fontSize: 11,
+                        formatter: function(params) {
+                            // 取整
+                            return Math.round(params.value);
+                        }
+                    },
+                    data: [ { type: 'max', name: '历史峰值' } ]
+                }
+            }
+        ]
+    };
+
+    if (option && typeof option === 'object') {
+        myChart.setOption(option);
+    }
+    window.addEventListener('resize', myChart.resize);
+</script>
+</body>
+</html>

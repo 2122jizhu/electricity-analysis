@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta charset="utf-8">
+    <title>2021年全球电力进出口贸易 Top 10</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body style="height: 100%; margin: 0; background-color: #f4f4f4;">
+<div id="container" style="height: 100%"></div>
+
+<script type="text/javascript">
+    var dom = document.getElementById("container");
+    var myChart = echarts.init(dom);
+
+    // 1. 使用 Spark 任务生成的真实 JSON 数据
+    var rawData = {
+        "imports": [
+            {"Country":"United States","ImportVal":53.17},
+            {"Country":"Germany","ImportVal":51.34},
+            {"Country":"Italy","ImportVal":46.56},
+            {"Country":"Switzerland","ImportVal":31.63},
+            {"Country":"Thailand","ImportVal":31.29},
+            {"Country":"United Kingdom","ImportVal":28.74},
+            {"Country":"Austria","ImportVal":26.44},
+            {"Country":"France","ImportVal":24.53},
+            {"Country":"Finland","ImportVal":24.00},
+            {"Country":"Brazil","ImportVal":23.15}
+        ],
+        "exports": [
+            {"Country":"Germany","ExportVal":70.24},
+            {"Country":"France","ExportVal":69.37},
+            {"Country":"Canada","ExportVal":48.14},
+            {"Country":"Sweden","ExportVal":33.91},
+            {"Country":"Laos","ExportVal":32.63},
+            {"Country":"Switzerland","ExportVal":28.97},
+            {"Country":"Paraguay","ExportVal":28.01},
+            {"Country":"Czechia","ExportVal":26.23},
+            {"Country":"Norway","ExportVal":25.82},
+            {"Country":"Belgium","ExportVal":23.07}
+        ]
+    };
+
+    // 2. 数据提取
+    var exportCountries = rawData.exports.map(item => item.Country);
+    var exportValues = rawData.exports.map(item => item.ExportVal);
+
+    var importCountries = rawData.imports.map(item => item.Country);
+    var importValues = rawData.imports.map(item => item.ImportVal);
+
+    var option = {
+        backgroundColor: '#fff',
+        // 全局标题
+        title: {
+            text: '2021年全球主要电力贸易国 Top 10',
+            subtext: '左侧：主要出口国 (供应方)  |  右侧：主要进口国 (需求方)\n单位：十亿千瓦时 (TWh)',
+            left: 'center',
+            top: 10,
+            textStyle: { fontSize: 24, color: '#333' }
+        },
+
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' }
+        },
+
+        // [关键布局] 定义两个网格，将画布分为左右两部分
+        grid: [
+            {
+                left: '5%', right: '55%', top: '15%', bottom: '5%',
+                containLabel: true
+            },
+            {
+                left: '55%', right: '5%', top: '15%', bottom: '5%',
+                containLabel: true
+            }
+        ],
+
+        // 定义两个 X 轴
+        xAxis: [
+            {
+                type: 'value',
+                gridIndex: 0, // 对应左侧网格
+                name: '出口量 (Exports)',
+                nameLocation: 'middle',
+                nameGap: 30,
+                splitLine: { show: false }
+            },
+            {
+                type: 'value',
+                gridIndex: 1, // 对应右侧网格
+                name: '进口量 (Imports)',
+                nameLocation: 'middle',
+                nameGap: 30,
+                splitLine: { show: false }
+            }
+        ],
+
+        // 定义两个 Y 轴
+        yAxis: [
+            {
+                type: 'category',
+                gridIndex: 0,
+                inverse: true, // 倒序，第一名在上面
+                data: exportCountries,
+                axisLabel: { fontWeight: 'bold' },
+                axisLine: { show: true, lineStyle: { color: '#333' } }
+            },
+            {
+                type: 'category',
+                gridIndex: 1,
+                inverse: true,
+                data: importCountries,
+                axisLabel: { fontWeight: 'bold' },
+                position: 'right', // 标签显示在右侧，避免和左图打架
+                axisLine: { show: true, lineStyle: { color: '#333' } }
+            }
+        ],
+
+        series: [
+            // 左侧：出口系列
+            {
+                name: 'Exports',
+                type: 'bar',
+                xAxisIndex: 0,
+                yAxisIndex: 0,
+                data: exportValues,
+                itemStyle: {
+                    // 绿色渐变：象征绿色能源输出、供应
+                    color: new echarts.graphic.LinearGradient(1, 0, 0, 0, [
+                        { offset: 0, color: '#00b09b' },
+                        { offset: 1, color: '#96c93d' }
+                    ]),
+                    borderRadius: [0, 4, 4, 0]
+                },
+                label: {
+                    show: true,
+                    position: 'right',
+                    formatter: '{c}',
+                    fontWeight: 'bold'
+                },
+                barWidth: '60%'
+            },
+            // 右侧：进口系列
+            {
+                name: 'Imports',
+                type: 'bar',
+                xAxisIndex: 1,
+                yAxisIndex: 1,
+                data: importValues,
+                itemStyle: {
+                    // 橙色渐变：象征需求、消耗
+                    color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                        { offset: 0, color: '#ff9966' },
+                        { offset: 1, color: '#ff5e62' }
+                    ]),
+                    borderRadius: [4, 0, 0, 4]
+                },
+                // 为了美观，进口图表我们让条形向左生长（可选），或者保持向右
+                // 这里保持标准向右，但标签放内部或左侧
+                label: {
+                    show: true,
+                    position: 'left', // 数值显示在柱子左侧
+                    formatter: '{c}',
+                    fontWeight: 'bold',
+                    color: '#ff5e62'
+                },
+                barWidth: '60%'
+            }
+        ]
+    };
+
+    if (option && typeof option === 'object') {
+        myChart.setOption(option);
+    }
+    window.addEventListener('resize', myChart.resize);
+</script>
+</body>
+</html>
